@@ -1,0 +1,304 @@
+﻿#include "setwidget.h"
+#include "ui_setwidget.h"
+#include <QDebug>
+#include <QHBoxLayout>
+#include "vedioaddwidget.h"
+#include "flowmeterwidget.h"
+
+SetWidget::SetWidget(QWidget *parent) :
+    QWidget(parent),
+    ui(new Ui::SetWidget)
+{
+    ui->setupUi(this);
+    m_map.clear();
+    initWidget();
+    initTabel();
+}
+
+SetWidget::~SetWidget()
+{
+    delete ui;
+}
+
+void SetWidget::currentItemChanged(int index, const QString &item)
+{
+    ui->stackedWidget->setCurrentIndex(index);
+}
+
+void SetWidget::vedioEditBtnHandel()
+{
+
+}
+
+void SetWidget::vedioDeleteBtnHandel()
+{
+    ui->vedioTabel->setFocus();
+    int row = ui->vedioTabel->currentRow();
+    ui->vedioTabel->removeRow(row);
+}
+
+void SetWidget::initWidget()
+{
+    QString item = "视频参数设置;断面信息设置;缆道信息设置;常用参数设置;安装参数设置;测流法则管理;水位计管理;流速仪管理;站点管理;模板管理;白名单管理;用户管理;用户组管理;权限管理";
+    ui->widget->setItems(item);
+
+    ui->widget->setHorizontal(false);
+    ui->widget->setBarStyle(SliderBar::BarStyle_Line_Left);
+
+    ui->widget->setBarColorStart(QColor(0, 159, 239));
+    ui->widget->setBarColorEnd(QColor(0, 159, 239));
+
+    ui->widget->setBgColorStart(QColor(255, 255, 255));
+    ui->widget->setBgColorEnd(QColor(255, 255, 255));
+
+    ui->widget->setTextNormalColor(QColor(0, 0, 0));
+    ui->widget->setTextSelectColor(QColor(223, 252, 253));
+
+    ui->widget->setLineColor(QColor(0, 159, 239));
+    ui->widget->setCurrentIndex(1);
+
+    //ui->vedioTabel->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+  //  ui->vedioTabel->horizontalHeader()->setSectionResizeMode(3, QHeaderView::ResizeToContents);
+
+    connect(ui->widget, SIGNAL(currentItemChanged(int, QString)), this, SLOT(currentItemChanged(int, QString)));
+    ui->vedioAddBtn->setObjectName("BlueButton");
+    ui->meterAddBtn->setObjectName("BlueButton");
+    ui->meterDeleteBtn->setObjectName("BlueButton");
+}
+
+void SetWidget::initTabel()
+{
+    ui->vedioTabel->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->vedioTabel->verticalHeader()->setHidden(true);
+    ui->vedioTabel->setColumnCount(6);
+    ui->vedioTabel->setRowCount(0);
+
+    ui->vedioTabel->setColumnWidth(0, 180);
+    ui->vedioTabel->setColumnWidth(1, 100);
+    ui->vedioTabel->setColumnWidth(2, 100);
+    ui->vedioTabel->setColumnWidth(3, 150);
+    ui->vedioTabel->setColumnWidth(4, 150);
+    ui->vedioTabel->horizontalHeader()->setSectionResizeMode(5, QHeaderView::Stretch);
+
+    QStringList header;
+    header.append(QString("IP地址"));
+    header.append(QString("RTSP端口号"));
+    header.append(QString("服务端口号"));
+    header.append(QString("登录用户"));
+    header.append(QString("登录密码"));
+    header.append(QString("操作"));
+    ui->vedioTabel->setHorizontalHeaderLabels(header);
+
+    //////////////////////////////////////////////////////
+
+    ui->meterTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->meterTable->verticalHeader()->setHidden(true);
+    ui->meterTable->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    ui->meterTable->setColumnCount(10);
+    ui->meterTable->setRowCount(0);
+
+    ui->meterTable->setColumnWidth(0, 90);
+    ui->meterTable->setColumnWidth(1, 90);
+    ui->meterTable->setColumnWidth(2, 90);
+    ui->meterTable->setColumnWidth(3, 90);
+    ui->meterTable->setColumnWidth(4, 130);
+    ui->meterTable->setColumnWidth(5, 90);
+    ui->meterTable->setColumnWidth(6, 90);
+    ui->meterTable->setColumnWidth(7, 130);
+    ui->meterTable->setColumnWidth(8, 90);
+    ui->meterTable->horizontalHeader()->setSectionResizeMode(9, QHeaderView::Stretch);
+
+    header.clear();
+    header.append(QString("流速仪编号"));
+    header.append(QString("流速仪型号"));
+    header.append(QString("常数K或B"));
+    header.append(QString("常数C或A"));
+    header.append(QString("常数K(转速/脉冲)"));
+    header.append(QString("使用次数"));
+    header.append(QString("校验时间"));
+    header.append(QString("状态"));
+    header.append(QString("默认"));
+    header.append(QString("操作"));
+    ui->meterTable->setHorizontalHeaderLabels(header);
+
+    /////////////////////////////////////////////////////////////////
+    ui->waterMeterTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->waterMeterTable->verticalHeader()->setHidden(true);
+    ui->waterMeterTable->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    ui->waterMeterTable->setColumnCount(2);
+    ui->waterMeterTable->setRowCount(0);
+
+    ui->meterTable->setColumnWidth(1, 90);
+    ui->meterTable->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+
+    header.clear();
+    header.append(QString("类型"));
+    header.append(QString("操作"));
+    ui->meterTable->setHorizontalHeaderLabels(header);
+
+    m_map.clear();
+    m_map.insert(0, "浮子水位计");
+    m_map.insert(1, "雷达水位计");
+    m_map.insert(2, "气泡水位计");
+
+    QWidget* buttonWidget = new QWidget(this);
+    QPushButton *btn1 = new QPushButton();
+    QPushButton *btn2 = new QPushButton();
+    btn1->setMinimumHeight(30);
+    btn2->setMinimumHeight(30);
+    btn1->setMaximumWidth(100);
+    btn2->setMaximumWidth(100);
+    btn1->setObjectName("BlueButton");
+    btn2->setObjectName("BlueButton");
+    btn1->setText(QString("配置"));
+    btn2->setText(QString("默认"));
+    QHBoxLayout *layout = new QHBoxLayout();
+    layout->addWidget(btn1);
+    layout->addWidget(btn2);
+    buttonWidget->setLayout(layout);
+
+    connect(btn1, SIGNAL(clicked()), this, SLOT(waterMeterSet()));
+    connect(btn2, SIGNAL(clicked()), this, SLOT(waterMeterDefault()));
+    ui->meterTable->setRowCount(3);
+    ui->meterTable->setRowHeight(0, 50);
+    ui->meterTable->setRowHeight(1, 50);
+    ui->meterTable->setRowHeight(2, 50);
+
+}
+
+void SetWidget::addVedioTableData(QString value)
+{
+    QWidget* buttonWidget = new QWidget(this);
+    QPushButton *btn1 = new QPushButton();
+    QPushButton *btn2 = new QPushButton();
+    btn1->setMinimumHeight(30);
+    btn2->setMinimumHeight(30);
+    btn1->setMaximumWidth(100);
+    btn2->setMaximumWidth(100);
+    btn1->setObjectName("BlueButton");
+    btn2->setObjectName("BlueButton");
+    btn1->setText(QString("编辑"));
+    btn2->setText(QString("删除"));
+    QHBoxLayout *layout = new QHBoxLayout();
+    layout->addWidget(btn1);
+    layout->addWidget(btn2);
+    buttonWidget->setLayout(layout);
+
+    connect(btn1, SIGNAL(clicked()), this, SLOT(vedioEditBtnHandel()));
+    connect(btn2, SIGNAL(clicked()), this, SLOT(vedioDeleteBtnHandel()));
+    int row = ui->vedioTabel->rowCount();
+    ui->vedioTabel->setRowCount(row + 1);
+    ui->vedioTabel->setRowHeight(row, 50);
+
+    m_map.clear();
+    QStringList list = value.split("&", QString::SkipEmptyParts);
+    for(int i = 0; i < list.count(); i++)
+    {
+        m_map.insert(i, list.at(i));
+    }
+
+    for(int i = 0; i < m_map.size(); ++i)
+    {
+        QTableWidgetItem *item = new QTableWidgetItem(m_map[i]);
+        item->setTextAlignment(Qt::AlignCenter);
+        ui->vedioTabel->setItem(row, i, item);
+    }
+    ui->vedioTabel->setCellWidget(row, 5, buttonWidget);
+}
+
+void SetWidget::addMeterTableData(QString value)
+{
+    QWidget* buttonWidget = new QWidget(this);
+    QPushButton *btn1 = new QPushButton();
+    QPushButton *btn2 = new QPushButton();
+    QPushButton *btn3 = new QPushButton();
+    btn1->setMinimumHeight(30);
+    btn2->setMinimumHeight(30);
+    btn3->setMinimumHeight(30);
+    btn1->setMaximumWidth(100);
+    btn2->setMaximumWidth(100);
+    btn3->setMaximumWidth(100);
+    btn1->setObjectName("BlueButton");
+    btn2->setObjectName("BlueButton");
+    btn3->setObjectName("BlueButton");
+    btn1->setText(QString("默认"));
+    btn2->setText(QString("编辑"));
+    btn3->setText(QString("删除"));
+    QHBoxLayout *layout = new QHBoxLayout();
+    layout->addWidget(btn1);
+    layout->addWidget(btn2);
+    layout->addWidget(btn3);
+    buttonWidget->setLayout(layout);
+
+    connect(btn1, SIGNAL(clicked()), this, SLOT(meterDefaultBtnHandel()));
+    connect(btn2, SIGNAL(clicked()), this, SLOT(meterEditBtnHandel()));
+    connect(btn3, SIGNAL(clicked()), this, SLOT(meterDeleteBtnHandel()));
+    int row = ui->meterTable->rowCount();
+    ui->meterTable->setRowCount(row + 1);
+    ui->meterTable->setRowHeight(row, 50);
+
+    m_map.clear();
+    QStringList list = value.split("&", QString::SkipEmptyParts);
+    for(int i = 0; i < list.count(); i++)
+    {
+        m_map.insert(i, list.at(i));
+    }
+
+    for(int i = 0; i < m_map.size(); ++i)
+    {
+        QTableWidgetItem *item = new QTableWidgetItem(m_map[i]);
+        item->setTextAlignment(Qt::AlignCenter);
+        ui->meterTable->setItem(row, i, item);
+    }
+    ui->meterTable->setCellWidget(row, 9, buttonWidget);
+}
+
+void SetWidget::on_vedioAddBtn_clicked()
+{
+    QString result = VedioAddWidget::showMyMessageBox(this, NULL);
+    if(result != QString("cancel"))
+    {
+        addVedioTableData(result);
+    }
+}
+
+void SetWidget::on_meterDeleteBtn_clicked()
+{
+
+}
+
+void SetWidget::on_meterAddBtn_clicked()
+{
+    QString result = FlowMeterWidget::showMyMessageBox(this, NULL);
+    if(result != QString("cancel"))
+    {
+        addMeterTableData(result);
+    }
+}
+
+void SetWidget::meterEditBtnHandel()
+{
+
+}
+
+void SetWidget::meterDefaultBtnHandel()
+{
+
+}
+
+void SetWidget::meterDeleteBtnHandel()
+{
+    ui->meterTable->setFocus();
+    int row = ui->meterTable->currentRow();
+    ui->meterTable->removeRow(row);
+}
+
+void SetWidget::waterMeterSet()
+{
+
+}
+
+void SetWidget::waterMeterDefault()
+{
+
+}
